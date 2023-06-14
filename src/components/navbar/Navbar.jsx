@@ -1,7 +1,5 @@
-
-
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -132,7 +130,10 @@ const Navbar = () => {
       )}
       {show && (
         <div className="fixed inset-0 flex items-center justify-center z-10 ">
-          <div   onClick={closeModal} className="bg-colorprimary opacity-75 fixed inset-0"></div>
+          <div
+            onClick={closeModal}
+            className="bg-colorprimary opacity-75 fixed inset-0"
+          ></div>
           <div className="relative bg-white rounded-lg p-8 shining-box shadow-lg">
             {/* Content for the modal */}
             <h2 className="text-lg font-semibold mb-4">Modal Title</h2>
@@ -140,7 +141,6 @@ const Navbar = () => {
               This is the content of the modal. You can add any React components
               or custom styles here.
             </p>
-       
           </div>
         </div>
       )}
