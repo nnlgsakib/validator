@@ -1,0 +1,383 @@
+import React, { useState, useEffect } from "react";
+
+import InfoBox from "../components/InfoBox";
+import { FaUserAstronaut } from "react-icons/fa";
+import { RiMedal2Line } from "react-icons/ri";
+import { SiBitcoin } from "react-icons/si";
+import { GiMining } from "react-icons/gi";
+import { Avatar } from "@mui/material";
+import Web3 from 'web3';
+import { abi } from './abi/abi';
+
+
+import base64js from 'base64-js';
+
+
+const web3 = new Web3(Web3.givenProvider || 'https://rpc-msc.mindchain.info/');
+const contractAddress = '0x0000000000000000000000000000000000001001';
+
+//function App() {
+ //const [account, setAccount] = useState('');
+
+
+
+
+
+
+
+
+const ValidatorsPage = () => {
+
+
+  const [stakedAmount, setStakedAmount] = useState(0);
+  const [blsKey, setBlsKey] = useState('');
+  const [validators, setValidators] = useState([]);
+
+  useEffect(() => {
+    const loadAccount = async () => {
+      const accounts = await web3.eth.getAccounts();
+      setAccount(accounts[0]);
+    };
+
+    const loadStakedAmount = async () => {
+      const stakingInstance = new web3.eth.Contract(abi, contractAddress);
+      const amount = await stakingInstance.methods.stakedAmount().call();
+      setStakedAmount(web3.utils.fromWei(amount));
+    };
+
+    const loadValidators = async () => {
+        const stakingInstance = new web3.eth.Contract(abi, contractAddress);
+        const validators = await stakingInstance.methods.validators().call();
+        const publicKeys = await stakingInstance.methods.validatorBLSPublicKeys().call();
+        const validatorList = [];
+      
+        for (let i = 0; i < validators.length; i++) {
+          const addr = validators[i];
+          const publicKeyBuffer = Buffer.from(publicKeys[i].slice(2), 'hex');
+          const publicKeyArray = new Uint8Array(publicKeyBuffer);
+          const publicKeyString = web3.utils.bytesToHex(publicKeyArray);
+          validatorList.push({ address: addr, publicKey: publicKeyString });
+        }
+      
+        setValidators(validatorList);
+      };
+      
+      
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', () => {
+        loadAccount();
+      });
+    }
+
+    loadAccount();
+    loadStakedAmount();
+    loadValidators();
+  }, []);
+  let listHeaderData = [
+    {
+      name: "Validator",
+      info: "Give more information about the validator",
+    },
+    {
+      name: "Status",
+      info: "Give more information about the status",
+    },
+    {
+      name: "Validator Hash",
+      info: "Give more information about the validator hash",
+    },
+    {
+      name: "Staked MIND",
+      info: "Give more information about the staked MIND",
+    },
+    {
+      name: "Earned Reward",
+      info: "Give more information about the earned reward",
+    },
+    {
+      name: "Total Validated Block",
+      info: "Give more information about the total validated block",
+    },
+  ];
+
+  /*  fake api
+  let fakeApiData = [
+    {
+      validator: "John Doe",
+      status: "Active",
+      validatorHash: "0xabc123",
+      stakedMind: 1000,
+      earnedReward: 500,
+      totalValidatedBlock: 10000,
+    },
+    {
+      validator: "Jane Smith",
+      status: "Inactive",
+      validatorHash: "0xdef456",
+      stakedMind: 2000,
+      earnedReward: 800,
+      totalValidatedBlock: 15000,
+    },
+    {
+      validator: "Alice Johnson",
+      status: "Active",
+      validatorHash: "0xghi789",
+      stakedMind: 3000,
+      earnedReward: 1200,
+      totalValidatedBlock: 20000,
+    },
+    // Add more objects here with fake data
+    {
+      validator: "Bob Thompson",
+      status: "Active",
+      validatorHash: "0xjkl012",
+      stakedMind: 2500,
+      earnedReward: 1000,
+      totalValidatedBlock: 18000,
+    },
+    {
+      validator: "Eve Davis",
+      status: "Inactive",
+      validatorHash: "0xmno345",
+      stakedMind: 1500,
+      earnedReward: 700,
+      totalValidatedBlock: 12000,
+    },
+    // Add more objects here with fake data
+    {
+      validator: "Michael Wilson",
+      status: "Active",
+      validatorHash: "0xpqr678",
+      stakedMind: 1800,
+      earnedReward: 900,
+      totalValidatedBlock: 15000,
+    },
+    {
+      validator: "Sarah Adams",
+      status: "Active",
+      validatorHash: "0xstu901",
+      stakedMind: 2200,
+      earnedReward: 1100,
+      totalValidatedBlock: 19000,
+    },
+    // Add more objects here with fake data
+    {
+      validator: "David Brown",
+      status: "Inactive",
+      validatorHash: "0xvwx234",
+      stakedMind: 1300,
+      earnedReward: 600,
+      totalValidatedBlock: 10000,
+    },
+    {
+      validator: "Olivia Green",
+      status: "Active",
+      validatorHash: "0xyza567",
+      stakedMind: 2800,
+      earnedReward: 1400,
+      totalValidatedBlock: 22000,
+    },
+    {
+        validator: "John Doe",
+        status: "Active",
+        validatorHash: "0xabc123",
+        stakedMind: 1000,
+        earnedReward: 500,
+        totalValidatedBlock: 10000,
+      },
+      {
+        validator: "Jane Smith",
+        status: "Inactive",
+        validatorHash: "0xdef456",
+        stakedMind: 2000,
+        earnedReward: 800,
+        totalValidatedBlock: 15000,
+      },
+      {
+        validator: "Alice Johnson",
+        status: "Active",
+        validatorHash: "0xghi789",
+        stakedMind: 3000,
+        earnedReward: 1200,
+        totalValidatedBlock: 20000,
+      },
+      // Add more objects here with fake data
+      {
+        validator: "Bob Thompson",
+        status: "Active",
+        validatorHash: "0xjkl012",
+        stakedMind: 2500,
+        earnedReward: 1000,
+        totalValidatedBlock: 18000,
+      },
+      {
+        validator: "Eve Davis",
+        status: "Inactive",
+        validatorHash: "0xmno345",
+        stakedMind: 1500,
+        earnedReward: 700,
+        totalValidatedBlock: 12000,
+      },
+      // Add more objects here with fake data
+      {
+        validator: "Michael Wilson",
+        status: "Active",
+        validatorHash: "0xpqr678",
+        stakedMind: 1800,
+        earnedReward: 900,
+        totalValidatedBlock: 15000,
+      },
+      {
+        validator: "Sarah Adams",
+        status: "Active",
+        validatorHash: "0xstu901",
+        stakedMind: 2200,
+        earnedReward: 1100,
+        totalValidatedBlock: 19000,
+      },
+      // Add more objects here with fake data
+      {
+        validator: "David Brown",
+        status: "Inactive",
+        validatorHash: "0xvwx234",
+        stakedMind: 1300,
+        earnedReward: 600,
+        totalValidatedBlock: 10000,
+      },
+      {
+        validator: "Olivia Green",
+        status: "Active",
+        validatorHash: "0xyza567",
+        stakedMind: 2800,
+        earnedReward: 1400,
+        totalValidatedBlock: 22000,
+      },
+    // Add more objects here with fake data
+  ];**/
+
+  return (
+    <>
+      <div className="max-w-container mx-auto px-4">
+        <div className="py-2 flex items-center gap-x-3">
+          <h4 className="font-normal m-0 p-0">Validators </h4>{" "}
+          <span className="text-[14px]">
+            (Round: <span className="text-colorprimary text-">21563</span>)
+          </span>{" "}
+        </div>
+      </div>
+      {/* 4 box start */}
+      <div className="mt-4 p-1 bg-[#9ae1ff]">
+        <div className="max-w-container mx-auto px-4 py-3">
+          <div className="flex flex-col md:flex-row   justify-between flex-wrap gap-y-3 gap-x49.5">
+            <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
+              <div className="flex justify-between">
+                <InfoBox text="Validator" info="You are my validator" />
+                <FaUserAstronaut className="text-[50px] text-colorprimary" />
+              </div>
+              <div className="mt-2">
+                <h2 className="text-black font-bold">27/27</h2>
+              </div>
+            </div>
+
+            <div className="shining-box shadow-md  bg-white w-full md:w-[49.5%] rounded-md p-3">
+              <div className="flex justify-between">
+                <InfoBox
+                  text="Total Staked MIND"
+                  info="Write you information about Staked MIND"
+                />
+                <img
+                  src="https://i.postimg.cc/WzP0q49y/logo.png"
+                  className="h-[50px] w-[50px]"
+                  alt=""
+                />
+              </div>
+              <div className="mt-2 flex items-center gap-x-2">
+                <h2 className="text-black font-bold">81,822,433</h2>{" "}
+                <small>MIND</small>
+              </div>
+            </div>
+
+            <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
+              <div className="flex justify-between">
+                <InfoBox
+                  text="Reward Rate"
+                  info="Write you information about Reward Rate"
+                />
+                <RiMedal2Line className="h-[50px] w-[50px] text-colorprimary" />
+              </div>
+              <div className="mt-2 flex items-center gap-x-2">
+                <h2 className="text-black font-bold">6</h2>{" "}
+                <small>Bitcoin Blocks</small>
+              </div>
+            </div>
+
+            <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
+              <div className="flex justify-between">
+                <InfoBox
+                  text="Total Difficulties"
+                  info="Write you information about Total Difficulties"
+                />
+                <GiMining className="h-[50px] w-[50px] text-colorprimary" />
+              </div>
+              <div className="mt-2 flex items-center gap-x-2">
+                <h2 className="text-black font-bold">15.28 / 384.58</h2>{" "}
+                <small>EH/s</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* 4 box end */}
+      {/* validator list start */}
+      <div className="max-w-container px-4 mx-auto mt-5 mb-5">
+        <h4>Validators</h4>
+        <div className="mt-4 bg  rounded-lg shadow-xl w-full">
+          {/* list header start */}
+          <div className="py-2 px-3 bg-[rgb(226,243,255)] rounded-t-lg flex justify-between">
+            {listHeaderData.map((item, index) => (
+              <div className=" w-[16.66666666667%]">
+                <InfoBox text={item.name} info={item.info} />
+              </div>
+            ))}
+          </div>
+          {/* list header end */}
+          {/* list body start */}
+          <ul className="m-0 p-0 h-[600px] overflow-y-scroll">
+          {validators.map((validator, index) => (
+              <li key={index} className="px-3 py-2 flex justify-between items-center">
+                <div className="flex items-center text-[13px] font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
+                  <Avatar className="!w-[27px] !h-[27px]" />
+                  {validator.address}
+                </div>
+                <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
+                  <div className={` rounded-full w-[60px] text-center  px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"} `}>
+                    {item.status}
+                  </div>
+                  <div className={` rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
+                    {item.status === "Active" ? "Normal" : "Queued"}
+                  </div>
+                </div>
+                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                  {item.validatorHash}
+                </div>
+                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                  {item.stakedMind}
+                </div>
+                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                  {item.earnedReward}
+                </div>
+                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                  {item.totalValidatedBlock}
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* list body end */}
+        </div>
+      </div>
+      {/* validator list end */}
+    </>
+  );
+};
+
+export default ValidatorsPage;
