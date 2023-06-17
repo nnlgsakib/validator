@@ -20,7 +20,8 @@
     "react-icons": "^4.9.0",
     "react-paginate": "^8.2.0",
     "react-router-dom": "^6.11.2",
-    "styled-components": "^5.3.11"
+    "styled-components": "^5.3.11",
+    "web3": "^4.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
