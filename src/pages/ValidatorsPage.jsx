@@ -9,9 +9,12 @@ import { Avatar } from "@mui/material";
 import ReactPaginate from "react-paginate";
 import {BsThreeDots} from "react-icons/bs"
 import Web3 from "web3";
-import {abi as contractABI} from "./abi/abi"
+import {abi} from "./abi/abi"
+import { getValidatorList , getStakedAmount} from "./list";
+import { getLatestDifficulty } from "./dif";
 //import getValidators from "./vallist";
 import { fakeApiData } from "./fk";
+import { toByteArray } from 'base64-js';
 
 let listHeaderData = [
   {
@@ -50,75 +53,58 @@ let listHeaderData = [
 
   
 
-//function Items({ currentItems }) {
+function Items({ currentItems }) {
+  const [validatorList, setValidatorList] = useState([]);
 
-//func : validator addr arry
-  function Items({ currentItems }) {
-    const [validators, setValidators] = useState([]);
+  useEffect(() => {
+    async function fetchValidatorList() {
+      const list = await getValidatorList();
+      setValidatorList(list);
+    }
 
-    useEffect(() => {
-      const getValidators = async () => {
-        try {
-          const rpcEndpoint = 'https://rpc-msc.mindchain.info/';
-          const web3 = new Web3(rpcEndpoint);
-          const contractAddress = '0x0000000000000000000000000000000000001001';
-  
-         
-          const contract = new web3.eth.Contract(contractABI, contractAddress);
-  
-          
-          const validatorList = await contract.methods.validators().call();
-  
-          
-          setValidators(validatorList);
-        } catch (error) {
-          console.error('Error retrieving validators:', error);
-        }
-      };
-  
-      getValidators();
-    }, []);
-
-    return (
-      <>
-        {currentItems && validators && 
-          currentItems.map((item, index) => {
-            const { validator } = item ;
-    
-            return (
-              <li key={index} className="px-3 py-2 flex justify-between items-center">
-                <div className="flex items-center text-[13px] font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
-                  <Avatar className="!w-[27px] !h-[27px]" />
-                  {validator.validator}
-                </div>
-                <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
-                  <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"}`}>
-                    {item.status}
-                  </div>
-                  <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
-                     {item.status === "Active" ? "Normal" : "Queued"}
-                  </div>
-                </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-                  {item.validatorHash}
-                </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-                  {item.stakedMind}
-                </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-                  {item.earnedReward}
-                </div>
-                <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-                {item.totalValidatedBlock}
-                </div>
-              </li>
-            );
-          })}
-      </>
-    );
-    
-        }
-
+    fetchValidatorList();
+  }, []);
+ 
+  return (
+    <>
+      {currentItems &&
+        currentItems.map((item, index) => (
+          <li key={index} className="px-3 py-2 flex justify-between items-center">
+          <div className="flex items-center text-[13px] font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
+            <Avatar className="!w-[27px] !h-[27px]" />
+            {validatorList.length === 0 ? (
+          <li>No validators available</li>
+        ) : (
+          validatorList.map((address, index) => (
+            <li key={index}>{address}</li>
+          ))
+        )}
+          </div>
+          <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
+            <div className={` rounded-full w-[60px] text-center  px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"} `}>
+              {item.status}
+            </div>
+            <div className={` rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
+              {item.status === "Active" ? "Normal" : "Queued"}
+            </div>
+          </div>
+          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+            {item.validatorHash}
+          </div>
+          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+            {item.stakedMind}
+          </div>
+          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+            {item.earnedReward}
+          </div>
+          <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+            {item.totalValidatedBlock}
+          </div>
+        </li>
+        ))}
+    </>
+  );
+}
 // react pagination
 function PaginatedItems({ itemsPerPage }) {
   // Here we use item offsets; we could also use page offsets
@@ -168,8 +154,31 @@ function PaginatedItems({ itemsPerPage }) {
   );
 }
 
-
+const web3 = new Web3('https://rpc-msc.mindchain.info/');
 const ValidatorsPage = () => {
+  const [stakedAmount, setStakedAmount] = useState(0);
+  const [latestDifficulty, setLatestDifficulty] = useState(0);
+
+
+  useEffect(() => {
+    const fetchStakedAmount = async () => {
+      const amountInWei = await getStakedAmount();
+      const amountInEther = web3.utils.fromWei(amountInWei, 'ether');
+      setStakedAmount(amountInEther);
+    };
+
+    fetchStakedAmount();
+  }, []);
+  useEffect(() => {
+    const fetchLatestDifficulty = async () => {
+      const difficulty = await getLatestDifficulty();
+      setLatestDifficulty(difficulty);
+    };
+  
+    fetchLatestDifficulty();
+  }, []);
+  
+  
   
 
   return (
@@ -192,7 +201,7 @@ const ValidatorsPage = () => {
                 <FaUserAstronaut className="text-[50px] text-colorprimary" />
               </div>
               <div className="mt-2">
-                <h2 className="text-black font-bold">27/27</h2>
+                <h2 className="text-black font-bold">7/1000</h2>
               </div>
             </div>
 
@@ -209,7 +218,7 @@ const ValidatorsPage = () => {
                 />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">81,822,433</h2>{" "}
+                <h2 className="text-black font-bold">{stakedAmount}</h2>{" "}
                 <small>MIND</small>
               </div>
             </div>
@@ -224,7 +233,7 @@ const ValidatorsPage = () => {
               </div>
               <div className="mt-2 flex items-center gap-x-2">
                 <h2 className="text-black font-bold">6</h2>{" "}
-                <small>Bitcoin Blocks</small>
+                <small>PMIND per Block</small>
               </div>
             </div>
 
@@ -237,7 +246,7 @@ const ValidatorsPage = () => {
                 <GiMining className="h-[50px] w-[50px] text-colorprimary" />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">15.28 / 384.58</h2>{" "}
+                <h2 className="text-black font-bold">{latestDifficulty}</h2>{" "}
                 <small>EH/s</small>
               </div>
             </div>
