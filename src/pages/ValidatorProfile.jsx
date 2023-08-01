@@ -404,7 +404,7 @@ const ValidatorProfile = () => {
             </div>
           </div>
         </div>
-        <div className="w-full  md:w-full p-3 rounded-xl shadow-lg mt-4">
+        <div className="w-full hi md:w-full p-3 rounded-xl shadow-lg mt-4">
           <div className="border-b">
             <h5>MIND Records</h5>
           </div>
