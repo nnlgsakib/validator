@@ -20,7 +20,10 @@ const InfoBox = ({ text, info }) => {
           className=" cursor-pointer w-[10px] h-[10px] rounded-full  text-white"
           
         >
+          {info &&
+          
         <FcInfo onMouseEnter={handleHover} onMouseLeave={handleLeave}/>
+          }
         </span>
       </span>
       {showInfo && (

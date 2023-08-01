@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+a{
+  text-decoration:  none !important;
+}
 /* shining box */
 .shining-box {
     position: relative;

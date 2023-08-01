@@ -1,25 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Web3 from "web3";
-//import { ethers } from "ethers";
 import InfoBox from "../components/InfoBox";
 import { FaUserAstronaut } from "react-icons/fa";
 import { RiMedal2Line } from "react-icons/ri";
 import { SiBitcoin } from "react-icons/si";
 import { GiMining } from "react-icons/gi";
-import { GrFormPreviousLink, GrFormNextLink } from "react-icons/gr";
 import { Avatar } from "@mui/material";
-import ReactPaginate from "react-paginate";
-import { BsThreeDots } from "react-icons/bs";
-import {getLatestDifficulty } from "./handler/dif";
-import  {fakeApiData} from "./handler/fk"
-import {getStakedAmount} from "./handler/list"
-
-
-//import {Web3} from "web3";
-//import {getLatestDifficulty} from "./handler/dif"
-
-
-
+import { fakeApiData } from "./handler/fk";
+import { Link } from "react-router-dom";
 
 let listHeaderData = [
   {
@@ -48,109 +36,16 @@ let listHeaderData = [
   },
 ];
 
+const web3 = new Web3('https://rpc-msc.mindchain.info/');
 
-// let items = []
-// for (var i = 1; i <= fakeApiData.length; i++) {
-//   items.push(i);
-// }
-function Items({ currentItems }) {
-  return (
-    <>
-      {currentItems &&
-        currentItems.map((item, index) => (
-          <li key={index} className="px-3 py-2 flex justify-between items-center">
-          <div className="flex items-center text-[13px] font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
-            <Avatar className="!w-[27px] !h-[27px]" />
-            {item.validator}
-          </div>
-          <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
-            <div className={` rounded-full w-[60px] text-center  px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"} `}>
-              {item.status}
-            </div>
-            <div className={` rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
-              {item.status === "Active" ? "Normal" : "Queued"}
-            </div>
-          </div>
-          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-            {item.validatorHash}
-          </div>
-          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-            {item.stakedMind}
-          </div>
-          <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-            {item.earnedReward}
-          </div>
-          <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
-            {item.totalValidatedBlock}
-          </div>
-        </li>
-        ))}
-    </>
-  );
-}
-
-// react pagination
-function PaginatedItems({ itemsPerPage }) {
-  // Here we use item offsets; we could also use page offsets
-  // following the API or data you're working with.
-  const [itemOffset, setItemOffset] = useState(0);
-
-  // Simulate fetching items from another resources.
-  // (This could be items from props; or items loaded in a local state
-  // from an API endpoint with useEffect and useState)
-  const endOffset = itemOffset + itemsPerPage;
-  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  const currentItems = fakeApiData.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(fakeApiData.length / itemsPerPage);
-
-  // Invoke when user click to request another page.
-  const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % fakeApiData.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
-    setItemOffset(newOffset);
-  };
-
-  return (
-    <>
-      <Items currentItems={currentItems} />
-      <ReactPaginate
-      containerClassName="flex justify-center items-center py-3  gap-x-5  border-t !text-colorprimary"
-      // className="!no-underline flex"
-        breakLabel={<BsThreeDots/>}
-        nextLabel={<GrFormNextLink className="text-colorprimary"/>}
-        onPageChange={handlePageClick}
-        pageRangeDisplayed={2}
-        pageCount={pageCount}
-        previousLabel={<GrFormPreviousLink className="!text-colorprimary"/>}
-        renderOnZeroPageCount={null}
-        pageLinkClassName="inline-block w-[30px] h-[30px]  rounded-full shadow-md no-underline flex justify-center items-center font-semibold text-colorprimary duration-300 hover:bg-colorprimary hover:text-white"
-        previousClassName="page-item w-[30px] h-[30px]  rounded-full shadow-md no-underline flex justify-center items-center  !text-colorprimary duration-300 hover:bg-colorprimary  hover:!text-white"
-        previousLinkClassName="page-link !text-colorprimary"
-        nextClassName="page-item  w-[30px] h-[30px]  rounded-full shadow-md no-underline flex justify-center items-center  text-colorprimary duration-300 hover:bg-colorprimary  hover:text-white"
-        nextLinkClassName="page-link "
-        activeLinkClassName="active-link !no-underline"
-        activeClassName="active"
-        breakClassName=" w-[30px] h-[30px]  rounded-full shadow-md no-underline flex justify-center items-center  !text-colorprimary duration-300 hover:bg-colorprimary  hover:!text-white"
-      />
-    </>
-  );
-}
-
-
-
-//const web3 = new Web3('https://rpc-msc.mindchain.info/');
-//const ValidatorsPage = () => {
-  const web3 = new Web3('https://rpc-msc.mindchain.info/');
 const ValidatorsPage = () => {
-
   const [stakedAmount, setStakedAmount] = useState(0);
   const [difficulty, setDifficulty] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        // Fetch latest difficulty
         const latestDifficulty = await getLatestDifficulty();
         setDifficulty(latestDifficulty);
       } catch (error) {
@@ -161,8 +56,6 @@ const ValidatorsPage = () => {
     fetchData();
   }, []);
 
-
-
   useEffect(() => {
     const fetchStakedAmount = async () => {
       const amountInWei = await getStakedAmount();
@@ -172,13 +65,12 @@ const ValidatorsPage = () => {
 
     fetchStakedAmount();
   }, []);
- 
 
+  // Sort the fakeApiData based on totalValidatedBlock in descending order
+  const sortedFakeApiData = fakeApiData.sort(
+    (a, b) => b.totalValidatedBlock - a.totalValidatedBlock
+  );
 
-  
-  
-
- 
   return (
     <>
       <div className="max-w-container mx-auto px-4">
@@ -189,7 +81,6 @@ const ValidatorsPage = () => {
           </span>{" "}
         </div>
       </div>
-      {/* 4 box start */}
       <div className="mt-4 p-1 bg-[#9ae1ff]">
         <div className="max-w-container mx-auto px-4 py-3">
           <div className="flex flex-col md:flex-row   justify-between flex-wrap gap-y-3 gap-x49.5">
@@ -202,12 +93,11 @@ const ValidatorsPage = () => {
                 <h2 className="text-black font-bold">27/27</h2>
               </div>
             </div>
-
             <div className="shining-box shadow-md  bg-white w-full md:w-[49.5%] rounded-md p-3">
               <div className="flex justify-between">
                 <InfoBox
                   text="Total Staked MIND"
-                  info="Write you information about Staked MIND"
+                  info="Write your information about Staked MIND"
                 />
                 <img
                   src="https://i.postimg.cc/WzP0q49y/logo.png"
@@ -220,12 +110,11 @@ const ValidatorsPage = () => {
                 <small>MIND</small>
               </div>
             </div>
-
             <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
               <div className="flex justify-between">
                 <InfoBox
                   text="Reward Rate"
-                  info="Write you information about Reward Rate"
+                  info="Write your information about Reward Rate"
                 />
                 <RiMedal2Line className="h-[50px] w-[50px] text-colorprimary" />
               </div>
@@ -234,12 +123,11 @@ const ValidatorsPage = () => {
                 <small>Bitcoin Blocks</small>
               </div>
             </div>
-
             <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
               <div className="flex justify-between">
                 <InfoBox
                   text="Total Difficulties"
-                  info="Write you information about Total Difficulties"
+                  info="Write your information about Total Difficulties"
                 />
                 <GiMining className="h-[50px] w-[50px] text-colorprimary" />
               </div>
@@ -251,56 +139,50 @@ const ValidatorsPage = () => {
           </div>
         </div>
       </div>
-      {/* 4 box end */}
-      {/* validator list start */}
       <div className="max-w-container px-4 mx-auto mt-5 mb-5">
         <h4>Validators</h4>
-        <div className="mt-4 bg  rounded-lg shadow-xl w-full">
-          {/* list header start */}
+        <div className="mt-4 bg rounded-lg shadow-xl w-full">
           <div className="py-2 px-3 bg-[rgb(226,243,255)] rounded-t-lg flex justify-between">
             {listHeaderData.map((item, index) => (
-              <div  key={index} className=" w-[16.66666666667%]">
+              <div key={index} className="w-[16.66666666667%]">
                 <InfoBox text={item.name} info={item.info} />
               </div>
             ))}
           </div>
-          {/* list header end */}
-          {/* list body start */}
-          <ul className="m-0 p-0  overflow-y-scroll">
-          <PaginatedItems itemsPerPage={8} />
-            {/* {fakeApiData.map((item, index) => (
-              <li className="px-3 py-2 flex justify-between items-center">
-                <div className="flex items-center text-[13px] font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
+          <ul className="m-0 p-0 h-[600px] overflow-y-scroll">
+            {sortedFakeApiData.map((item,index)=>(
+              <li key={index} className="px-3 py-2 flex justify-between items-center">
+                <div className="flex items-center text-[13px]  font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
                   <Avatar className="!w-[27px] !h-[27px]" />
-                  {item.validator}
+                  <Link to={"/vprofile"} className="!underline text-[gray]">
+                    {item.validator}
+                  </Link>
                 </div>
                 <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
-                  <div className={` rounded-full w-[60px] text-center  px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"} `}>
+                  <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"}`}>
                     {item.status}
                   </div>
-                  <div className={` rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
+                  <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
                     {item.status === "Active" ? "Normal" : "Queued"}
                   </div>
                 </div>
-                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.validatorHash}
                 </div>
-                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.stakedMind}
                 </div>
-                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.earnedReward}
                 </div>
-                <div className="text-[13px] font-semibold text-[gray] w-[16.66666666667%]">
+                <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.totalValidatedBlock}
                 </div>
               </li>
-            ))} */}
+            ))} 
           </ul>
-          {/* list body end */}
         </div>
       </div>
-      {/* validator list end */}
     </>
   );
 };
