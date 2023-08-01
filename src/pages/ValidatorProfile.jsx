@@ -354,7 +354,7 @@ const ValidatorProfile = () => {
         </div>
 
         {/* content starts */}
-        <div className="flex  flex-col md:flex-row gap-y-5 md:gap-x-3 mt-4 ">
+        <div className="flex my  flex-col md:flex-row gap-y-5 md:gap-x-3 mt-4 ">
           <div className="w-full md:w-[40%] p-3 rounded-xl shadow-lg">
             {demoData.map((item, index) => (
               <div className="mt-3">
