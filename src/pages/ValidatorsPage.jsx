@@ -8,63 +8,24 @@ import { GiMining } from "react-icons/gi";
 import { Avatar } from "@mui/material";
 import { fakeApiData } from "./handler/fk";
 import { Link } from "react-router-dom";
-
-let listHeaderData = [
-  {
-    name: "Validator",
-    info: "Give more information about the validator",
-  },
-  {
-    name: "Status",
-    info: "Give more information about the status",
-  },
-  {
-    name: "Validator Hash",
-    info: "Give more information about the validator hash",
-  },
-  {
-    name: "Staked MIND",
-    info: "Give more information about the staked MIND",
-  },
-  {
-    name: "Earned Reward",
-    info: "Give more information about the earned reward",
-  },
-  {
-    name: "Total Validated Block",
-    info: "Give more information about the total validated block",
-  },
-];
-
-const web3 = new Web3('https://rpc-msc.mindchain.info/');
+import {listHeaderData} from "./handler/valdummy"
+import { getLatestDifficulty } from "./handler/dif";
 
 const ValidatorsPage = () => {
-  const [stakedAmount, setStakedAmount] = useState(0);
-  const [difficulty, setDifficulty] = useState(null);
+const [difficulty, setDifficulty] = useState(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Fetch latest difficulty
-        const latestDifficulty = await getLatestDifficulty();
-        setDifficulty(latestDifficulty);
-      } catch (error) {
-        console.error('Error:', error);
-      }
+useEffect(() => {
+  async function fetchDifficulty() {
+    try {
+      const latestDifficulty = await getLatestDifficulty();
+      setDifficulty(latestDifficulty);
+    } catch (error) {
+      // Handle error if needed
     }
+  }
 
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchStakedAmount = async () => {
-      const amountInWei = await getStakedAmount();
-      const amountInEther = web3.utils.fromWei(amountInWei, 'ether');
-      setStakedAmount(amountInEther);
-    };
-
-    fetchStakedAmount();
-  }, []);
+  fetchDifficulty();
+}, []);
 
   // Sort the fakeApiData based on totalValidatedBlock in descending order
   const sortedFakeApiData = fakeApiData.sort(
@@ -106,7 +67,7 @@ const ValidatorsPage = () => {
                 />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">{stakedAmount}</h2>{" "}
+                <h2 className="text-black font-bold"></h2>{" "}
                 <small>MIND</small>
               </div>
             </div>
@@ -132,7 +93,7 @@ const ValidatorsPage = () => {
                 <GiMining className="h-[50px] w-[50px] text-colorprimary" />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">{difficulty}</h2>{" "}
+                <h2 className="text-black font-bold">{difficulty !== null ? difficulty.toString() : 'Loading...'}</h2>{" "}
                 <small>EH/s</small>
               </div>
             </div>
