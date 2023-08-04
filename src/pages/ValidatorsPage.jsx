@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import {listHeaderData} from "./handler/valdummy"
 import { getLatestDifficulty , wsProvider} from "./handler/dif";
 import { getStakedAmount } from "./handler/getstake";
-
+import { abi } from "./abi/chainarg";
 const ValidatorsPage = () => {
   const [difficulty, setDifficulty] = useState(null);
 
@@ -55,6 +55,55 @@ useEffect(() => {
   fetchStakedAmount();
 }, []);
 
+const [currentRound, setCurrentRound] = useState('Loading...');
+const [subscription, setSubscription] = useState(null);
+
+useEffect(() => {
+  const web3 = new Web3('wss://seednode.mindchain.info/ws');
+
+  const contractAddress = '0x76193DE9F720c768f9605bcc5b3ACD01C70381f5';
+
+  const contract = new web3.eth.Contract(abi, contractAddress);
+
+  const fetchCurrentRound = async () => {
+    try {
+      const round = await contract.methods.getCurrentRound().call();
+      setCurrentRound(round.toString());
+    } catch (error) {
+      console.error('Error fetching current round:', error);
+      setCurrentRound('Error');
+    }
+  };
+
+  // Call the function once to display the initial value
+  fetchCurrentRound();
+
+  // Subscribe to new block headers
+  const newBlockSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
+    if (!error) {
+      fetchCurrentRound();
+    } else {
+      console.error('WebSocket error:', error);
+    }
+  });
+
+ 
+  setSubscription(newBlockSubscription);
+
+  // Clean up the subscription when the component unmounts
+  return () => {
+    if (subscription) {
+      subscription.unsubscribe((error, success) => {
+        if (success) {
+          console.log('Unsubscribed successfully');
+        } else if (error) {
+          console.error('Unsubscribe error:', error);
+        }
+      });
+    }
+  };
+}, []);
+
   // Sort the fakeApiData based on totalValidatedBlock in descending order
   const sortedFakeApiData = fakeApiData.sort(
     (a, b) => b.totalValidatedBlock - a.totalValidatedBlock
@@ -66,7 +115,7 @@ useEffect(() => {
         <div className="py-2 flex items-center gap-x-3">
           <h4 className="font-normal m-0 p-0">Validators </h4>{" "}
           <span className="text-[14px]">
-            (Round: <span className="text-colorprimary text-">21563</span>)
+            (Round: <span className="text-colorprimary text-">{currentRound}</span>)
           </span>{" "}
         </div>
       </div>
