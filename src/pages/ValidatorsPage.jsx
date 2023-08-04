@@ -9,22 +9,50 @@ import { Avatar } from "@mui/material";
 import { fakeApiData } from "./handler/fk";
 import { Link } from "react-router-dom";
 import {listHeaderData} from "./handler/valdummy"
-import { getLatestDifficulty } from "./handler/dif";
+import { getLatestDifficulty , wsProvider} from "./handler/dif";
+import { getStakedAmount } from "./handler/getstake";
 
 const ValidatorsPage = () => {
-const [difficulty, setDifficulty] = useState(null);
+  const [difficulty, setDifficulty] = useState(null);
+
+  useEffect(() => {
+    const fetchDifficulty = async () => {
+      try {
+        const latestDifficulty = await getLatestDifficulty();
+        setDifficulty(latestDifficulty);
+      } catch (error) {
+        console.error('Error fetching difficulty:', error);
+      }
+    };
+
+    fetchDifficulty();
+
+    const blockListener = (blockNumber) => {
+      fetchDifficulty();
+    };
+
+    // Subscribe to new block events
+    wsProvider.on('block', blockListener);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      wsProvider.removeListener('block', blockListener);
+    };
+  }, []);
+
+const [stakedAmount, setStakedAmount] = useState(0);
 
 useEffect(() => {
-  async function fetchDifficulty() {
+  async function fetchStakedAmount() {
     try {
-      const latestDifficulty = await getLatestDifficulty();
-      setDifficulty(latestDifficulty);
+      const amount = await getStakedAmount();
+      setStakedAmount(amount);
     } catch (error) {
-      // Handle error if needed
+      // Handle error
     }
   }
 
-  fetchDifficulty();
+  fetchStakedAmount();
 }, []);
 
   // Sort the fakeApiData based on totalValidatedBlock in descending order
@@ -67,7 +95,7 @@ useEffect(() => {
                 />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold"></h2>{" "}
+                <h2 className="text-black font-bold">{stakedAmount}</h2>{" "}
                 <small>MIND</small>
               </div>
             </div>
@@ -75,26 +103,26 @@ useEffect(() => {
               <div className="flex justify-between">
                 <InfoBox
                   text="Reward Rate"
-                  info="Write your information about Reward Rate"
+                  info="PMIND Reward Rate for every block"
                 />
                 <RiMedal2Line className="h-[50px] w-[50px] text-colorprimary" />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">6</h2>{" "}
-                <small>Bitcoin Blocks</small>
+                <h2 className="text-black font-bold">0.003</h2>{" "}
+                <small>PMIND</small>
               </div>
             </div>
             <div className="shining-box shadow-md bg-white w-full md:w-[49.5%] rounded-md p-3">
               <div className="flex justify-between">
                 <InfoBox
-                  text="Total Difficulties"
-                  info="Write your information about Total Difficulties"
+                  text="total blocks"
+                  info="Current block height of MindChain"
                 />
                 <GiMining className="h-[50px] w-[50px] text-colorprimary" />
               </div>
               <div className="mt-2 flex items-center gap-x-2">
-                <h2 className="text-black font-bold">{difficulty !== null ? difficulty.toString() : 'Loading...'}</h2>{" "}
-                <small>EH/s</small>
+                <h2 className="text-black font-bold">{difficulty !== null ? <p>{difficulty.toString()}</p> : <p>Loading...</p>}</h2>{" "}
+                <small>bk</small>
               </div>
             </div>
           </div>

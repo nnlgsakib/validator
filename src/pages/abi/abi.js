@@ -1,4 +1,4 @@
-export  let   abi = [
+export  const   contractABI = [
 	{
 		"inputs": [
 			{
