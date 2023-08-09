@@ -12,6 +12,8 @@ import {listHeaderData} from "./handler/valdummy"
 import { getLatestDifficulty , wsProvider} from "./handler/dif";
 import { getStakedAmount } from "./handler/getstake";
 import { abi } from "./abi/chainarg";
+import ContractInteraction from "./handler/valcount"
+
 const ValidatorsPage = () => {
   const [difficulty, setDifficulty] = useState(null);
 
@@ -104,7 +106,20 @@ useEffect(() => {
   };
 }, []);
 
-  // Sort the fakeApiData based on totalValidatedBlock in descending order
+
+const contractInstance = new ContractInteraction();
+
+  const [totalValidatorsCount, setTotalValidatorsCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchTotalValidatorsCount() {
+      const count = await contractInstance.getTotalValidatorsCount();
+      setTotalValidatorsCount(count);
+    }
+
+    fetchTotalValidatorsCount();
+  }, []);
+  
   const sortedFakeApiData = fakeApiData.sort(
     (a, b) => b.totalValidatedBlock - a.totalValidatedBlock
   );
@@ -128,7 +143,7 @@ useEffect(() => {
                 <FaUserAstronaut className="text-[50px] text-colorprimary" />
               </div>
               <div className="mt-2">
-                <h2 className="text-black font-bold">27/27</h2>
+                <h2 className="text-black font-bold">{totalValidatorsCount}/1000</h2>
               </div>
             </div>
             <div className="shining-box shadow-md  bg-white w-full md:w-[49.5%] rounded-md p-3">

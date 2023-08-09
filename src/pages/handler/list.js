@@ -15,5 +15,5 @@ async function getStakedAmount() {
   return stakedAmount;
 }
 
-export { getValidatorList, getStakedAmount };
+export { getValidatorList, getStakedAmount,contractAddress,web3 };
 
