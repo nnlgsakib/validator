@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 
 import { Link } from "react-router-dom";
+import AddMscNetwork from "../../features/AddMscNetwork/AddMscNetwork";
 
 const Navbar = () => {
   const navItems = [
@@ -136,10 +137,9 @@ const Navbar = () => {
           ></div>
           <div className="relative bg-white rounded-lg p-8 shining-box shadow-lg">
             {/* Content for the modal */}
-            <h2 className="text-lg font-semibold mb-4">Modal Title</h2>
+            <h2 className="text-lg font-semibold mb-4">Add MSC Network</h2>
             <p className="text-gray-700 mb-4">
-              This is the content of the modal. You can add any React components
-              or custom styles here.
+              <AddMscNetwork/>
             </p>
           </div>
         </div>
