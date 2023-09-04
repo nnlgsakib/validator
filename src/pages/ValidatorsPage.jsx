@@ -196,7 +196,7 @@ const sortedFakeApiData = fakeApiData && Array.isArray(fakeApiData)
         <div className="mt-4 bg rounded-lg shadow-xl w-full">
           <div className="py-2 px-3 bg-[rgb(226,243,255)] rounded-t-lg flex justify-between">
             {listHeaderData.map((item, index) => (
-              <div key={index} className="w-[16.66666666667%]">
+              <div key={index} className="w-[25%] flex justify-center">
                 <InfoBox text={item.name} info={item.info} />
               </div>
             ))}
@@ -204,32 +204,32 @@ const sortedFakeApiData = fakeApiData && Array.isArray(fakeApiData)
           <ul className="m-0 p-0 h-[600px] overflow-y-scroll">
             {sortedFakeApiData.map((item,index)=>(
               <li key={index} className="px-3 py-2 flex justify-between items-center">
-                <div className="flex items-center text-[13px]  font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
+                <div className="flex items-center text-[13px]  font-semibold text-[gray] gap-x-1 w-[25%]  justify-center">
                   <Avatar className="!w-[27px] !h-[27px]" />
                   <Link to={"/vprofile"} className="!underline text-[gray]">
                     {item.validator.slice(0,18)}...
                   </Link>
                 </div>
-                <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
-                  <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"}`}>
+                <div className="flex flex-col items-center gap-y-1 w-[25%]">
+                  <div className={`rounded-full w-[60px] text-center  px-2 py-1 text-[10px] text-white font-bold ${item.status === "Active" ? "bg-[#00ffa6]" : "bg-[#ffaf0e]"}`}>
                     {item.status}
                   </div>
                   <div className={`rounded-full w-[60px] text-center px-2 py-1 text-[10px] text-[#989898] font-bold  ${item.status === "Active" ? "bg-[#97ffd0]" : "bg-[#ffc074]"}`}>
                     {item.status === "Active" ? "Normal" : "Queued"}
                   </div>
                 </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+                {/* <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.validatorHash}
-                </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+                </div> */}
+                <div className="text-[13px] text-center pl-3 font-semibold text-[gray] w-[25%]">
                   {item.stakedMind}
                 </div>
-                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+                <div className="text-[13px] pl-3 font-semibold text-[gray] w-[25%] text-center">
                   {item.earnedReward}
                 </div>
-                <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
+                {/* <div className="text-[13px] un pl-3 font-semibold text-[gray] w-[16.66666666667%]">
                   {item.totalValidatedBlock}
-                </div>
+                </div> */}
               </li>
             ))} 
           </ul>
