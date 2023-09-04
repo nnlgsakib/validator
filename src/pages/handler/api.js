@@ -4,7 +4,7 @@ export let fakeApiData = null;
 
 async function fetchDataFromAPI() {
   try {
-    const response = await axios.get('http://localhost:3000/api/staking');
+    const response = await axios.get('https://api.mindscan.info/api/staking');
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch data: ${response.statusText}`);
