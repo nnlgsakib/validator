@@ -91,29 +91,43 @@
 // });
 const express = require('express');
 const { ethers } = require('ethers');
-const WebSocket = require('websocket').w3cwebsocket;
-const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
+const WebSocket = require('ws'); // Import the 'ws' package
 
-const wsProvider = new ethers.providers.WebSocketProvider('wss://seednode.mindchain.info/ws'); // Replace with your WebSocket URL
+const wsProvider = new ethers.providers.WebSocketProvider('wss://seednode.mindchain.info/ws');
 
-const contractABI = require('./StakingContractABI.json');
-const stakingContractAddress = '0x0000000000000000000000000000000000001001';
-const rewardContractAddress = '0x75E218790B76654A5EdA1D0797B46cBC709136b0';
+let stakingContract;
+let rewardContract;
 
-const stakingContract = new ethers.Contract(stakingContractAddress, contractABI, wsProvider);
-const rewardContractABI = require('./RewardContractABI.json');
-const rewardContract = new ethers.Contract(rewardContractAddress, rewardContractABI, wsProvider);
+// Function to initialize the contracts
+async function initializeContracts() {
+  const contractABI = require('./StakingContractABI.json');
+  const stakingContractAddress = '0x0000000000000000000000000000000000001001';
+  const rewardContractABI = require('./RewardContractABI.json');
+  const rewardContractAddress = '0x75E218790B76654A5EdA1D0797B46cBC709136b0';
+
+  stakingContract = new ethers.Contract(stakingContractAddress, contractABI, wsProvider);
+  rewardContract = new ethers.Contract(rewardContractAddress, rewardContractABI, wsProvider);
+}
+
+initializeContracts();
+
+wsProvider.on('end', (event) => {
+  // WebSocket connection closed, you can handle reconnection here if needed
+  console.log('WebSocket connection closed:', event.reason);
+  console.log('Reconnecting...');
+  setTimeout(() => {
+    initializeContracts(); // Reinitialize contracts
+  }, 1000); // Delay before reconnection
+});
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); //http://localhost:5173
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
-
-let validatorData = /*readDataFromFile*/('') || [];
 
 async function getValidatorData() {
   try {
@@ -137,21 +151,12 @@ async function getValidatorData() {
       };
     });
 
-    const validatorDataArray = await Promise.all(validatorPromises);
+    const validatorData = await Promise.all(validatorPromises);
 
-    validatorData = validatorDataArray.reduce((acc, val) => {
-      const existingDataIndex = acc.findIndex((v) => v.validator === val.validator);
-      if (existingDataIndex !== -1) {
-        acc[existingDataIndex] = val;
-      } else {
-        acc.push(val);
-      }
-      return acc;
-    }, []);
-
-    saveDataToFile('data.json', validatorData);
+    return validatorData;
   } catch (error) {
-    console.error('Error fetching and updating validator data:', error);
+    console.error('Error fetching validator data:', error);
+    throw error;
   }
 }
 
@@ -159,27 +164,13 @@ function isValidatorActive(stakedAmountInEther) {
   return parseFloat(stakedAmountInEther) > 0;
 }
 
-function readDataFromFile(filename) {
-  try {
-    const data = fs.readFileSync(filename, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading data from file:', error);
-    return null;
-  }
-}
-
-function saveDataToFile(filename, data) {
-  try {
-    fs.writeFileSync(filename, JSON.stringify(data, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error saving data to file:', error);
-  }
-}
-
 app.get('/api/staking', async (req, res) => {
-  await getValidatorData();
-  res.json(validatorData);
+  try {
+    const validatorData = await getValidatorData();
+    res.json(validatorData);
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching validator data' });
+  }
 });
 
 app.listen(port, () => {

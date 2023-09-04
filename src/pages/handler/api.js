@@ -1,11 +1,11 @@
 import axios from 'axios';
 
+export let fakeApiData = null;
 
 async function fetchDataFromAPI() {
   try {
     const response = await axios.get('http://localhost:3000/api/staking');
 
- 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
@@ -16,16 +16,13 @@ async function fetchDataFromAPI() {
     return null;
   }
 }
-
-
-export let fakeApiData;
-
-
-fetchDataFromAPI()
-  .then((data) => {
-    fakeApiData = data;
-    console.log('Fetched data from API:', fakeApiData);
-  })
-  .catch((error) => {
-    console.error('Failed to fetch data:', error);
-  });
+function updateDataPeriodically() {
+    setInterval(async () => {
+      const newData = await fetchDataFromAPI();
+      if (newData) {
+        fakeApiData = newData;
+        console.log('Updated data from API:', fakeApiData);
+      }
+    }, 1000); // Fetch data every 1 second (1000 milliseconds)
+  }
+  updateDataPeriodically();
