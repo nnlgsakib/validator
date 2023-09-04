@@ -343,10 +343,7 @@ export const addressDatademo = [
       name: "Status",
       info: "Give more information about the status",
     },
-    {
-      name: "Validator Hash",
-      info: "Give more information about the validator hash",
-    },
+    
     {
       name: "Staked MIND",
       info: "Give more information about the staked MIND",
@@ -355,9 +352,9 @@ export const addressDatademo = [
       name: "Earned Reward",
       info: "Give more information about the earned reward",
     },
-    {
-      name: "Total Validated Block",
-      info: "Give more information about the total validated block",
-    },
+    // {
+    //   name: "Total Validated Block",
+    //   info: "Give more information about the total validated block",
+    // },
   ];
   

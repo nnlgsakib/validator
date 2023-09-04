@@ -1,0 +1,38 @@
+[
+  {
+    "validator": "0x394089c9A3fD81Ca5E0A9dbc9d1020DfB99C2605",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  },
+  {
+    "validator": "0x3fac5A12314Fdc0935586FbDB47aed57Abb1dBB2",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  },
+  {
+    "validator": "0xF4DAeb189BBe02920523D15dA9a34D104aFe858D",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  },
+  {
+    "validator": "0x040cda93502D34517781Dad158159639e6Cd4C9a",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  },
+  {
+    "validator": "0xA7f680dC3f37267F49218F0A4cbad9aF0cCec6C2",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  },
+  {
+    "validator": "0x98AEa18C1e71Fa3B63Ff22DbdCCbA0a5c424Ac9e",
+    "stakedMind": "10.0",
+    "earnedReward": "10.0",
+    "status": "Active"
+  }
+]

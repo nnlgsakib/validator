@@ -172,7 +172,7 @@ const ValidatorsPage = () => {
     {
       validator: "Olivia Green",
       status: "Active",
-      validatorHash: "0xyza567",
+       
       stakedMind: 2800,
       earnedReward: 1400,
       totalValidatedBlock: 22000,
@@ -247,7 +247,7 @@ const ValidatorsPage = () => {
       {
         validator: "Olivia Green",
         status: "Active",
-        validatorHash: "0xyza567",
+         
         stakedMind: 2800,
         earnedReward: 1400,
         totalValidatedBlock: 22000,

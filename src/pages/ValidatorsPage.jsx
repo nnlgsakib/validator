@@ -6,7 +6,7 @@ import { RiMedal2Line } from "react-icons/ri";
 import { SiBitcoin } from "react-icons/si";
 import { GiMining } from "react-icons/gi";
 import { Avatar } from "@mui/material";
-import { fakeApiData } from "./handler/fk";
+import { fakeApiData } from "./handler/api";
 import { Link } from "react-router-dom";
 import {listHeaderData} from "./handler/valdummy"
 import { getLatestDifficulty , wsProvider} from "./handler/dif";
@@ -89,19 +89,13 @@ useEffect(() => {
     }
   });
 
- 
   setSubscription(newBlockSubscription);
 
   // Clean up the subscription when the component unmounts
   return () => {
     if (subscription) {
-      subscription.unsubscribe((error, success) => {
-        if (success) {
-          console.log('Unsubscribed successfully');
-        } else if (error) {
-          console.error('Unsubscribe error:', error);
-        }
-      });
+      subscription.then((sub) => sub.unsubscribe())
+        .catch((error) => console.error('Unsubscribe error:', error));
     }
   };
 }, []);
@@ -120,9 +114,14 @@ const contractInstance = new ContractInteraction();
     fetchTotalValidatorsCount();
   }, []);
   
-  const sortedFakeApiData = fakeApiData.sort(
-    (a, b) => b.totalValidatedBlock - a.totalValidatedBlock
-  );
+  // const sortedFakeApiData = fakeApiData.sort(
+  //   (a, b) => b.totalValidatedBlock - a.totalValidatedBlock
+  // );
+  // Check if fakeApiData is defined and an array before sorting
+const sortedFakeApiData = fakeApiData && Array.isArray(fakeApiData)
+? fakeApiData.slice().sort((a, b) => b.totalValidatedBlock - a.totalValidatedBlock)
+: [];
+
 
   return (
     <>
@@ -208,7 +207,7 @@ const contractInstance = new ContractInteraction();
                 <div className="flex items-center text-[13px]  font-semibold text-[gray] gap-x-1 w-[16.66666666667%]">
                   <Avatar className="!w-[27px] !h-[27px]" />
                   <Link to={"/vprofile"} className="!underline text-[gray]">
-                    {item.validator}
+                    {item.validator.slice(0,18)}...
                   </Link>
                 </div>
                 <div className="flex flex-col gap-y-1 w-[16.66666666667%]">
